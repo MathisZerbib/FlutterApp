@@ -121,8 +121,6 @@ class _MapState extends State<Map> {
 
   _onCameraMove(CameraPosition position) {
     _lastMapPosition = position.target;
-    PlacesSearchMapSample(keyword);
-    SearchFilter(updateKeyWord);
   }
 
   _onAddMarkerButtonPressed() {

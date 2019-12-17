@@ -70,38 +70,24 @@ class _PlacesSearchMapSample extends State<PlacesSearchMapSample> {
   Completer<GoogleMapController> _controller = Completer();
 
 
-  static final CameraPosition _myLocation = CameraPosition(
-    target: LatLng(latitude, longitude),
-    zoom: 12,
-    bearing: 15.0,
-    tilt: 75.0
-  );
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: _myLocation,
-        onMapCreated: (GoogleMapController controller) {
-          _setStyle(controller);
-          _controller.complete(controller);
-        },
-        markers: Set<Marker>.of(markers),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          searchNearby(latitude, longitude);
-        },
-        label: Text('Places Nearby'),
-        icon: Icon(Icons.place),
-      ),
-    );
+  void initState() {
+    super.initState();
+    _getUserLocation();
   }
+  void _getUserLocation() async {
+   Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(position.latitude, position.longitude);
+    setState(() {
+      _initialPosition = LatLng(position.latitude, position.longitude);
+      print('${placemark[0].name}');
+    });
+  }
+
 
   void _setStyle(GoogleMapController controller) async {
     String value = await DefaultAssetBundle.of(context).loadString('assets/maps_style.json');
-    controller.setMapStyle(value);
+    await controller.setMapStyle(value);
   }
 
   void searchNearby(double latitude, double longitude) async {
@@ -161,4 +147,38 @@ class _PlacesSearchMapSample extends State<PlacesSearchMapSample> {
         print(data);
       }
   }
+
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: _initialPosition == null ? Container(child: Center(child:Text('loading map..', style: TextStyle(fontFamily: 'Avenir-Medium', color: Colors.grey[400]),),),) : Container(
+    child: Stack(children: <Widget>[
+    GoogleMap(
+        mapType: MapType.normal,
+        myLocationEnabled: true,
+        initialCameraPosition: CameraPosition(
+          target: _initialPosition,
+          zoom: 12.4746,
+        ),
+        onMapCreated: (GoogleMapController controller) {
+          _setStyle(controller);
+          _controller.complete(controller);
+        },
+        markers: Set<Marker>.of(markers),
+      )])),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          searchNearby(latitude, longitude);
+        },
+        label: Text('Places Nearby'),
+        icon: Icon(Icons.place),
+      ),
+    );
+
+  }
 }
+
