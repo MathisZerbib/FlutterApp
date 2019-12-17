@@ -25,5 +25,8 @@ flutter run
 # License
 
 Copyright (c) 2019 Souvik Biswas
+Copyright (c) 2019 Mathis Zerbib
+
+
 
 
